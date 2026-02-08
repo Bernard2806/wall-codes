@@ -8,10 +8,18 @@
 </head>
 <body>
 
+    <!-- Filtro SVG para efecto tiza -->
+    <svg style="position:absolute;width:0;height:0;">
+        <filter id="chalk-texture">
+            <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+    </svg>
+
     <main class="container">
         
         <div class="card student-card">
-            <img src="https://github.com/tu_usuario.png" alt="Foto Perfil" class="student-avatar">
+            <img src="https://github.com/CODES-UNLU.png" alt="Foto Perfil" class="student-avatar">
             
             <div class="info">
                 <h2>TU NOMBRE AQUÍ</h2>
@@ -19,7 +27,7 @@
                 <p class="subtitle">Estudiante de Sistemas | UNLu</p>
                 <p>¡Hola! Este es mi primer PR para el taller de CODES++.</p>
                 
-                <a href="https://github.com/tu_usuario" class="btn" target="_blank">Ver mi GitHub</a>
+                <a href="https://github.com/CODES-UNLU" class="btn" target="_blank">🔗 Ver mi GitHub</a>
             </div>
         </div>
 

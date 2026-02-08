@@ -8,6 +8,14 @@
 </head>
 <body>
 
+    <!-- Filtro SVG oculto para efecto tiza -->
+    <svg style="position:absolute;width:0;height:0;">
+        <filter id="chalk-texture">
+            <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+    </svg>
+
     <header>
         <h1>🏆 MURO DE LA FAMA</h1>
         <p class="subtitle">CODES++ Workshop 2026</p>
@@ -16,7 +24,7 @@
     <main class="container">
         <div class="card">
             <h2>🚀 ¿Cómo dejar tu huella aquí?</h2>
-            <p>Sigue los pasos que vimos en el taller:</p>
+            <p>Seguí los pasos que vimos en el taller:</p>
             <ol>
                 <li>Hacé un <strong>Fork</strong> de este repositorio.</li>
                 <li>Entrá a la carpeta <code>estudiantes/</code>.</li>
@@ -25,16 +33,67 @@
                 <li>Personalizalo y mandá tu <strong>Pull Request</strong>.</li>
             </ol>
             <div style="text-align: center; margin-top: 20px;">
-                <a href="https://github.com/codes-unlu/muro-codes" class="btn" target="_blank">Ir al Repositorio</a>
+                <a href="https://github.com/codes-unlu/muro-codes" class="btn" target="_blank">📌 Ir al Repositorio</a>
             </div>
         </div>
 
-        <div class="card">
-            <h3>👥 Estudiantes Certificados</h3>
-            <p>Navegá por la carpeta para ver los perfiles creados:</p>
-            <a href="estudiantes/" class="btn" style="background-color: var(--bg-card); border: 1px solid var(--border);">📂 Ver Carpeta de Estudiantes</a>
+        <!-- Sección de estudiantes — se carga dinámicamente desde estudiantes.json -->
+        <div class="card" id="students-section">
+            <h3>👥 Estudiantes en el Muro</h3>
+            <p id="students-count">Cargando...</p>
+            <div id="students-wall" class="students-grid">
+                <!-- Aquí se inyectan las tarjetas desde JS -->
+            </div>
+            <p id="students-empty" style="display:none; text-align:center; margin-top:1rem; font-size:1.2rem;">
+                🫥 Todavía no hay nadie... ¡Sé el primero en dejar tu huella!
+            </p>
         </div>
     </main>
+
+    <script>
+    (async function() {
+        const wall = document.getElementById('students-wall');
+        const countEl = document.getElementById('students-count');
+        const emptyEl = document.getElementById('students-empty');
+
+        try {
+            const res = await fetch('estudiantes.json');
+            if (!res.ok) throw new Error('No se pudo cargar el JSON');
+            const students = await res.json();
+
+            if (!students.length) {
+                countEl.textContent = '';
+                emptyEl.style.display = 'block';
+                return;
+            }
+
+            countEl.textContent = students.length === 1
+                ? '1 estudiante dejó su huella:'
+                : students.length + ' estudiantes dejaron su huella:';
+
+            students.forEach((s, i) => {
+                const card = document.createElement('a');
+                card.href = 'estudiantes/' + s.archivo;
+                card.className = 'student-mini';
+                card.style.animationDelay = (i * 0.08) + 's';
+
+                card.innerHTML = `
+                    <img src="${s.avatar || 'https://github.com/identicons/' + s.nombre + '.png'}"
+                         alt="${s.nombre}" class="student-mini-avatar"
+                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.nombre)}&background=2a4a3a&color=e8e4d9&size=80'">
+                    <span class="student-mini-name">${s.nombre}</span>
+                    <span class="student-mini-sub">${s.subtitulo || ''}</span>
+                `;
+                wall.appendChild(card);
+            });
+
+        } catch(e) {
+            countEl.textContent = '';
+            emptyEl.style.display = 'block';
+            console.warn('Error cargando estudiantes:', e);
+        }
+    })();
+    </script>
 
 </body>
 </html>
