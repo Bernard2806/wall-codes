@@ -1,84 +1,741 @@
-/* RESET Y BASES */
+/* ============================================
+   MURO DE LA FAMA — Estilo Aula Universitaria
+   Perspectiva en primera persona: mesa de madera
+   con pizarrón al frente
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Patrick+Hand&family=Special+Elite&display=swap');
+
 :root {
-    --bg-dark: #0d1117;
-    --bg-card: #161b22;
-    --text-main: #c9d1d9;
-    --border: #30363d;
-    --green-neon: #238636;
-    --blue-accent: #58a6ff;
+    /* Madera del escritorio */
+    --wood-light: #b5894e;
+    --wood-mid: #8b6331;
+    --wood-dark: #5c3d1e;
+    --wood-grain: #a07840;
+
+    /* Pizarrón */
+    --chalk-board: #2a4a3a;
+    --chalk-board-dark: #1e3628;
+    --chalk-frame: #6b4226;
+    --chalk-frame-light: #8b6340;
+
+    /* Tiza */
+    --chalk-white: #e8e4d9;
+    --chalk-yellow: #f0d878;
+    --chalk-blue: #7ec8e3;
+    --chalk-pink: #e89da0;
+    --chalk-orange: #e8a84c;
+
+    /* Papel */
+    --paper-bg: #faf6ed;
+    --paper-lines: #c8d4e6;
+    --paper-shadow: rgba(60, 30, 0, 0.5);
+    --ink-color: #1a1a2e;
+    --pencil-color: #3a3a4e;
+
+    /* Acento */
+    --red-pin: #cc3333;
+    --tape-color: rgba(255, 235, 180, 0.7);
 }
+
+/* ---- RESET ---- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    background-color: var(--bg-dark);
-    color: var(--text-main);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
+    min-height: 100vh;
+    font-family: 'Patrick Hand', cursive;
+    color: var(--ink-color);
     line-height: 1.6;
+    overflow-x: hidden;
+
+    /* === ESCRITORIO DE MADERA === */
+    background:
+        /* Vetas de madera - patrón repetitivo */
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 18px,
+            rgba(0,0,0,0.03) 18px,
+            rgba(0,0,0,0.03) 20px
+        ),
+        repeating-linear-gradient(
+            87deg,
+            transparent,
+            transparent 40px,
+            rgba(0,0,0,0.015) 40px,
+            rgba(0,0,0,0.015) 42px
+        ),
+        /* Nudos de la mesa */
+        radial-gradient(ellipse 50px 30px at 20% 60%, rgba(90,50,20,0.15), transparent),
+        radial-gradient(ellipse 35px 20px at 75% 30%, rgba(90,50,20,0.1), transparent),
+        radial-gradient(ellipse 40px 25px at 50% 80%, rgba(90,50,20,0.12), transparent),
+        /* Gradiente base de madera */
+        linear-gradient(
+            180deg,
+            #7a5230 0%,
+            #9b6b3d 8%,
+            #a87942 20%,
+            #b5894e 35%,
+            #a87942 55%,
+            #9b6b3d 75%,
+            #8b5e30 100%
+        );
+    background-color: var(--wood-mid);
 }
 
-/* HEADER */
+/* Sombra perspectiva — borde del escritorio */
+body::before {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to top, rgba(40,20,0,0.45), transparent);
+    pointer-events: none;
+    z-index: 100;
+}
+
+/* Borde superior del escritorio (canto de la mesa) */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: linear-gradient(to bottom, #5c3d1e, #8b6331);
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(40,20,0,0.4);
+}
+
+/* ==========================
+   HEADER — PIZARRÓN
+   ========================== */
 header {
+    position: relative;
     text-align: center;
-    padding: 3rem 1rem;
-    border-bottom: 1px solid var(--border);
-    background: radial-gradient(circle at top, #1f2428, var(--bg-dark));
+    margin: 2.5rem auto 0;
+    max-width: 880px;
+    padding: 3rem 2rem 2.5rem;
+
+    /* Pizarrón verde */
+    background:
+        /* textura de tiza residual */
+        radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.02), transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(255,255,255,0.015), transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.01), transparent 70%),
+        /* Base pizarrón */
+        linear-gradient(135deg, var(--chalk-board) 0%, var(--chalk-board-dark) 100%);
+    border-radius: 4px;
+
+    /* Marco de madera */
+    border: 12px solid var(--chalk-frame);
+    border-image: linear-gradient(
+        145deg,
+        #9b7340 0%, #6b4226 20%, #8b6340 40%,
+        #5a3420 60%, #7b5230 80%, #6b4226 100%
+    ) 12;
+    box-shadow:
+        inset 0 0 60px rgba(0,0,0,0.3),
+        inset 0 0 10px rgba(0,0,0,0.2),
+        0 8px 30px rgba(0,0,0,0.5),
+        0 2px 4px rgba(0,0,0,0.3);
 }
 
-h1 { color: #fff; margin-bottom: 0.5rem; }
-.subtitle { color: var(--blue-accent); font-weight: bold; }
+/* Canaleta inferior para tizas */
+header::after {
+    content: '';
+    position: absolute;
+    bottom: -26px;
+    left: 5%;
+    right: 5%;
+    height: 14px;
+    background: linear-gradient(to bottom, #7b5230, #5a3420);
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
 
-/* CONTENEDORES */
+/* Tizas decorativas en la canaleta */
+header::before {
+    content: '';
+    position: absolute;
+    bottom: -22px;
+    left: 12%;
+    width: 40px;
+    height: 8px;
+    background: var(--chalk-white);
+    border-radius: 3px;
+    box-shadow:
+        60px 2px 0 var(--chalk-yellow),
+        130px -1px 0 var(--chalk-blue),
+        200px 1px 0 var(--chalk-pink);
+    z-index: 10;
+}
+
+h1 {
+    font-family: 'Caveat', cursive;
+    font-size: 3rem;
+    color: var(--chalk-white);
+    text-shadow:
+        0 0 4px rgba(255,255,255,0.15),
+        1px 1px 0 rgba(0,0,0,0.3);
+    margin-bottom: 0.4rem;
+    letter-spacing: 2px;
+    /* efecto tiza: bordes irregulares */
+    filter: url(#chalk-texture) blur(0.3px);
+}
+
+.subtitle {
+    font-family: 'Caveat', cursive;
+    color: var(--chalk-yellow);
+    font-weight: 700;
+    font-size: 1.4rem;
+    text-shadow: 0 0 3px rgba(240,216,120,0.2);
+    letter-spacing: 1px;
+}
+
+/* ==========================
+   CONTENEDOR PRINCIPAL
+   (sobre la mesa)
+   ========================== */
 .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem;
+    max-width: 900px;
+    margin: 3.5rem auto 4rem;
+    padding: 0 1.5rem;
+    /* Perspectiva sutil de primera persona mirando la mesa */
+    perspective: 1200px;
 }
 
-/* TARJETAS */
+/* ==========================
+   TARJETAS — HOJAS DE PAPEL
+   ========================== */
 .card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    position: relative;
+    background:
+        /* Líneas de hoja rayada */
+        repeating-linear-gradient(
+            transparent,
+            transparent 31px,
+            var(--paper-lines) 31px,
+            var(--paper-lines) 32px
+        ),
+        /* Margen roja */
+        linear-gradient(
+            90deg,
+            transparent 59px,
+            #e8a0a0 59px,
+            #e8a0a0 61px,
+            transparent 61px
+        ),
+        var(--paper-bg);
+    border: none;
+    border-radius: 2px;
+    padding: 2.2rem 2.5rem 2.2rem 4.5rem;
+    margin-bottom: 2.5rem;
+    box-shadow:
+        2px 3px 12px var(--paper-shadow),
+        0 1px 3px rgba(60,30,0,0.3),
+        inset 0 0 40px rgba(0,0,0,0.02);
+
+    /* Papel ligeramente rotado sobre la mesa */
+    transform: rotate(-0.8deg);
+    transform-origin: center center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.card:nth-child(even) {
+    transform: rotate(0.6deg);
+}
+
+.card:hover {
+    transform: rotate(0deg) translateY(-3px);
+    box-shadow:
+        3px 6px 20px var(--paper-shadow),
+        0 2px 6px rgba(60,30,0,0.3);
+}
+
+/* Cinta adhesiva para sujetar papel */
+.card::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(2deg);
+    width: 80px;
+    height: 28px;
+    background: var(--tape-color);
+    border: 1px solid rgba(200,180,120,0.3);
+    border-radius: 2px;
+    z-index: 2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.card:nth-child(even)::before {
+    transform: translateX(-50%) rotate(-3deg);
+    width: 70px;
+}
+
+/* Doblez en esquina del papel */
+.card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(
+        135deg,
+        transparent 50%,
+        #e8e0d0 50%,
+        #d8d0c0 100%
+    );
+    box-shadow: -2px -2px 4px rgba(0,0,0,0.05);
+}
+
+/* Títulos del paper */
+.card h2, .card h3 {
+    font-family: 'Caveat', cursive;
+    color: var(--ink-color);
+    font-size: 1.8rem;
+    margin-bottom: 0.8rem;
+    border-bottom: 2px solid var(--ink-color);
+    padding-bottom: 0.3rem;
+    display: inline-block;
+}
+
+.card h3 {
+    font-size: 1.5rem;
+}
+
+.card p {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1.15rem;
+    color: var(--pencil-color);
+    margin-bottom: 0.5rem;
+}
+
+.card ol, .card ul {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1.1rem;
+    color: var(--pencil-color);
+    padding-left: 1.2rem;
+    margin: 0.5rem 0;
+}
+
+.card ol li {
+    margin-bottom: 0.4rem;
+    padding-left: 0.3rem;
+}
+
+/* ==========================
+   TARJETA DE ESTUDIANTE
+   — Foto polaroid + nota
+   ========================== */
 .student-card {
-    border-left: 5px solid var(--green-neon);
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 2rem;
+    border-left: none;
+    padding: 2rem 2.5rem 2rem 2.5rem;
+    /* Parece una nota pegada al escritorio */
+    background:
+        var(--paper-bg);
+    transform: rotate(0.5deg);
+}
+
+.student-card::before {
+    /* Pin rojo en vez de cinta */
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 18px;
+    background: radial-gradient(circle at 40% 40%, #ff5555, var(--red-pin));
+    border-radius: 50%;
+    box-shadow:
+        0 2px 4px rgba(0,0,0,0.4),
+        inset 0 -2px 3px rgba(0,0,0,0.2);
+    border: none;
 }
 
 .student-avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 2px solid var(--green-neon);
+    width: 90px;
+    height: 90px;
+    border-radius: 4px;
+    border: 4px solid #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    /* Aspecto polaroid */
+    padding: 0;
+    transform: rotate(-2deg);
+    transition: transform 0.3s ease;
 }
 
-/* BOTONES Y LINKS */
+.student-avatar:hover {
+    transform: rotate(0deg) scale(1.05);
+}
+
+.student-card .info .subtitle {
+    color: var(--pencil-color);
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1rem;
+    text-shadow: none;
+}
+
+/* ==========================
+   BOTONES — Estilo post-it
+   ========================== */
 .btn {
     display: inline-block;
-    background-color: var(--green-neon);
-    color: white;
-    padding: 0.8rem 1.5rem;
-    text-decoration: none;
-    border-radius: 6px;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1.1rem;
     font-weight: bold;
+    color: var(--ink-color) !important;
+    padding: 0.7rem 1.5rem;
+    text-decoration: none;
+    border-radius: 2px;
     margin-top: 1rem;
-    transition: transform 0.2s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+
+    /* Post-it amarillo */
+    background: linear-gradient(135deg, #fff9b0, #ffe066);
+    border: none;
+    box-shadow:
+        2px 2px 6px rgba(0,0,0,0.2),
+        inset 0 -2px 4px rgba(0,0,0,0.05);
+    transform: rotate(-1deg);
 }
 
-.btn:hover { transform: scale(1.05); opacity: 0.9; }
-.back-link { color: var(--text-main); text-decoration: none; display: block; text-align: center; margin-top: 2rem; }
-.back-link:hover { color: var(--blue-accent); }
+.btn:hover {
+    transform: rotate(0deg) scale(1.06);
+    box-shadow: 3px 4px 10px rgba(0,0,0,0.25);
+    opacity: 1;
+}
 
-/* INSTRUCCIONES */
+/* Segundo botón: post-it verde */
+.card:nth-child(2) .btn {
+    background: linear-gradient(135deg, #b8f0b0, #88d880) !important;
+    border: none !important;
+    transform: rotate(1deg);
+}
+
+.card:nth-child(2) .btn:hover {
+    transform: rotate(0deg) scale(1.06);
+}
+
+/* ==========================
+   LINK DE RETORNO
+   ========================== */
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 2rem;
+    font-family: 'Caveat', cursive;
+    font-size: 1.3rem;
+    color: var(--chalk-white);
+    text-decoration: none;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: var(--chalk-yellow);
+}
+
+/* ==========================
+   GRILLA DE ESTUDIANTES
+   (mini-tarjetas en el muro)
+   ========================== */
+.students-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1.2rem;
+}
+
+.student-mini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    padding: 1rem 0.6rem 0.8rem;
+    border-radius: 3px;
+    position: relative;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: stickyNote 0.5s ease-out both;
+
+    /* Post-it / nota adhesiva */
+    background: linear-gradient(175deg, #fffbe6 0%, #f5edce 100%);
+    box-shadow:
+        1px 2px 6px rgba(60,30,0,0.25),
+        inset 0 -2px 4px rgba(0,0,0,0.03);
+}
+
+.student-mini:nth-child(3n+1) {
+    background: linear-gradient(175deg, #e6f7e6 0%, #cceacc 100%);
+    transform: rotate(-1.2deg);
+}
+
+.student-mini:nth-child(3n+2) {
+    background: linear-gradient(175deg, #e6eeff 0%, #ccdcf5 100%);
+    transform: rotate(0.8deg);
+}
+
+.student-mini:nth-child(3n) {
+    background: linear-gradient(175deg, #fff0e6 0%, #f5dece 100%);
+    transform: rotate(-0.5deg);
+}
+
+/* Pin superior en cada nota */
+.student-mini::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle at 40% 35%, #ff6666, #cc2222);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    z-index: 2;
+}
+
+.student-mini:nth-child(even)::before {
+    background: radial-gradient(circle at 40% 35%, #66bb66, #228822);
+}
+
+.student-mini:hover {
+    transform: rotate(0deg) scale(1.08) translateY(-4px);
+    box-shadow:
+        2px 5px 14px rgba(60,30,0,0.35),
+        0 2px 5px rgba(0,0,0,0.2);
+    z-index: 5;
+}
+
+.student-mini-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 3px;
+    border: 3px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    margin-bottom: 0.5rem;
+    object-fit: cover;
+}
+
+.student-mini-name {
+    font-family: 'Caveat', cursive;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink-color);
+    text-align: center;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.student-mini-sub {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.8rem;
+    color: var(--pencil-color);
+    text-align: center;
+    line-height: 1.2;
+    margin-top: 0.15rem;
+}
+
+/* Sección contenedora del muro */
+#students-section {
+    /* Sin líneas de hoja — parece un corcho / tablero */
+    background:
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(160,120,60,0.03) 10px,
+            rgba(160,120,60,0.03) 11px
+        ),
+        linear-gradient(135deg, #d4a862 0%, #c49550 30%, #b88a45 60%, #c49550 100%);
+    padding: 2rem;
+    border: 8px solid var(--chalk-frame);
+    border-image: linear-gradient(
+        145deg,
+        #7b5230 0%, #5a3420 25%, #6b4226 50%,
+        #8b6340 75%, #6b4226 100%
+    ) 8;
+    box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.15),
+        2px 3px 12px var(--paper-shadow);
+    transform: rotate(0deg);
+}
+
+#students-section::before {
+    /* Sin cinta adhesiva para el tablero */
+    display: none;
+}
+
+#students-section::after {
+    display: none;
+}
+
+#students-section h3 {
+    color: var(--chalk-frame);
+    border-bottom-color: var(--chalk-frame);
+    font-size: 1.6rem;
+}
+
+#students-section > p {
+    color: var(--wood-dark);
+}
+
+@keyframes stickyNote {
+    from {
+        opacity: 0;
+        transform: rotate(5deg) scale(0.8) translateY(-15px);
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ==========================
+   CODE INLINE
+   ========================== */
 code {
-    background-color: rgba(110, 118, 129, 0.4);
-    padding: 0.2em 0.4em;
-    border-radius: 6px;
+    font-family: 'Special Elite', 'Courier New', monospace;
+    background-color: rgba(0, 0, 0, 0.06);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    font-size: 0.95em;
+    border: 1px dashed rgba(0,0,0,0.15);
 }
+
+/* ==========================
+   OBJETOS DECORATIVOS
+   SOBRE LA MESA
+   ========================== */
+
+/* Lápiz decorativo */
+.container::before {
+    content: '';
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 180px;
+    height: 12px;
+    background: linear-gradient(
+        90deg,
+        #f4d03f 0%, #f4d03f 75%,
+        #2c3e50 75%, #2c3e50 87%,
+        #f0c0a0 87%, #d4a080 100%
+    );
+    border-radius: 2px 6px 6px 2px;
+    transform: rotate(-25deg);
+    box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+    z-index: 50;
+    pointer-events: none;
+}
+
+/* Goma de borrar */
+.container::after {
+    content: '';
+    position: fixed;
+    bottom: 55px;
+    right: 55px;
+    width: 40px;
+    height: 22px;
+    background: linear-gradient(to bottom, #f0a0a0, #e07070);
+    border-radius: 3px;
+    transform: rotate(-10deg);
+    box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+    z-index: 50;
+    pointer-events: none;
+}
+
+/* ==========================
+   RESPONSIVE
+   ========================== */
+@media (max-width: 600px) {
+    header {
+        margin: 1rem 0.5rem 0;
+        padding: 2rem 1rem;
+        border-width: 8px;
+    }
+
+    h1 { font-size: 2rem; }
+    .subtitle { font-size: 1.1rem; }
+
+    .container {
+        padding: 0 0.8rem;
+        margin-top: 2.5rem;
+    }
+
+    .card {
+        padding: 1.5rem 1.5rem 1.5rem 3.5rem;
+    }
+
+    .student-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .students-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 0.8rem;
+    }
+
+    .student-mini-avatar {
+        width: 50px;
+        height: 50px;
+    }
+
+    .student-mini-name {
+        font-size: 0.95rem;
+    }
+
+    .container::before,
+    .container::after {
+        display: none;
+    }
+}
+
+/* ==========================
+   ANIMACIÓN DE ENTRADA
+   ========================== */
+@keyframes paperDrop {
+    from {
+        opacity: 0;
+        transform: rotate(-2deg) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: rotate(-0.8deg) translateY(0);
+    }
+}
+
+@keyframes paperDropEven {
+    from {
+        opacity: 0;
+        transform: rotate(2deg) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: rotate(0.6deg) translateY(0);
+    }
+}
+
+.card {
+    animation: paperDrop 0.6s ease-out both;
+}
+
+.card:nth-child(even) {
+    animation: paperDropEven 0.6s ease-out 0.15s both;
+}
+
+header {
+    animation: paperDrop 0.5s ease-out both;
+}
+
+/* SVG filter para textura de tiza (se define desde HTML) */
+/* <svg><filter id="chalk-texture">...</filter></svg> */

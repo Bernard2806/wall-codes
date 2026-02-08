@@ -1,0 +1,61 @@
+name: Actualizar JSON de estudiantes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'estudiantes/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+
+      - name: Generar estudiantes.json
+        run: |
+          echo "[]" > estudiantes.json.tmp
+
+          for file in estudiantes/*.html; do
+            filename=$(basename "$file")
+
+            # Extraer datos del HTML con grep/sed
+            nombre=$(grep -oP '<h2>\K[^<]+' "$file" | head -1 || echo "Sin nombre")
+            subtitulo=$(grep -oP '<p class="subtitle">\K[^<]+' "$file" | head -1 || echo "")
+            mensaje=$(grep -oP '(?<=<p>)[^<]+' "$file" | grep -v 'Navegá\|Seguí' | head -1 || echo "")
+            avatar=$(grep -oP 'src="\K[^"]+' "$file" | grep -E 'github|avatar|img' | head -1 || echo "")
+            github_url=$(grep -oP 'href="\K[^"]+' "$file" | grep 'github.com/' | grep -v 'codes-unlu' | head -1 || echo "")
+
+            # Limpiar espacios
+            nombre=$(echo "$nombre" | xargs)
+            subtitulo=$(echo "$subtitulo" | xargs)
+            mensaje=$(echo "$mensaje" | xargs)
+
+            echo "{\"nombre\": \"$nombre\", \"subtitulo\": \"$subtitulo\", \"mensaje\": \"$mensaje\", \"avatar\": \"$avatar\", \"github\": \"$github_url\", \"archivo\": \"$filename\"}"
+
+          done | jq -s '.' > estudiantes.json
+
+          # Si no hay estudiantes, dejar array vacío
+          if [ ! -s estudiantes.json ]; then
+            echo "[]" > estudiantes.json
+          fi
+
+          echo "=== estudiantes.json generado ==="
+          cat estudiantes.json
+
+      - name: Commit y push si hay cambios
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add estudiantes.json
+          if git diff --staged --quiet; then
+            echo "No hay cambios en estudiantes.json"
+          else
+            git commit -m "🤖 Actualizar lista de estudiantes [skip ci]"
+            git push
+          fi
