@@ -1,0 +1,172 @@
+name: Auto Approve Student PR
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'estudiantes/**'
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  validate-and-approve:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener archivos del PR
+        id: pr-files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+            return files;
+
+      - name: Validar y aprobar PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const files = ${{ steps.pr-files.outputs.result }};
+            const prNumber = context.payload.pull_request.number;
+            const prAuthor = context.payload.pull_request.user.login;
+
+            // —————————————————————————————
+            // Helper: dejar un comentario y fallar
+            // —————————————————————————————
+            async function reject(msg) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `❌ **PR no aprobado automáticamente**\n\n${msg}\n\n---\n_Revisá las instrucciones y volvé a intentar._ 🚀`,
+              });
+              core.setFailed(msg);
+            }
+
+            // —————————————————————————————
+            // 1. Exactamente UN archivo modificado en el PR
+            // —————————————————————————————
+            if (files.length !== 1) {
+              return await reject(
+                `El PR debe contener **exactamente 1 archivo**, pero se encontraron **${files.length}**.\n` +
+                `Archivos detectados:\n${files.map(f => '- \`' + f.filename + '\`').join('\n')}`
+              );
+            }
+
+            const file = files[0];
+            const filename = file.filename;       // e.g. "estudiantes/juan_perez.html"
+            const basename = filename.split('/').pop(); // e.g. "juan_perez.html"
+
+            // —————————————————————————————
+            // 2. El archivo debe estar en estudiantes/ (no subcarpetas)
+            // —————————————————————————————
+            if (!filename.startsWith('estudiantes/') || filename.split('/').length !== 2) {
+              return await reject(
+                `El archivo debe estar directamente dentro de la carpeta \`estudiantes/\`.\n` +
+                `Archivo recibido: \`${filename}\``
+              );
+            }
+
+            // —————————————————————————————
+            // 3. No se puede modificar el template.html
+            // —————————————————————————————
+            if (basename === 'template.html') {
+              return await reject(
+                `No podés modificar el archivo \`template.html\`. ` +
+                `Copialo y renombralo con tu nombre, por ejemplo: \`nombre_apellido.html\`.`
+              );
+            }
+
+            // —————————————————————————————
+            // 4. Nombre del archivo: nombre_apellido.html (snake_case)
+            // —————————————————————————————
+            const namePattern = /^[a-záéíóúüñ]+(_[a-záéíóúüñ]+)+\.html$/;
+            if (!namePattern.test(basename)) {
+              return await reject(
+                `El nombre del archivo debe seguir el formato \`nombre_apellido.html\` ` +
+                `(todo en minúsculas, separado por guiones bajos).\n` +
+                `Archivo recibido: \`${basename}\``
+              );
+            }
+
+            // —————————————————————————————
+            // 5. El archivo debe ser nuevo (added), no modificado
+            // —————————————————————————————
+            if (file.status !== 'added') {
+              return await reject(
+                `Solo se permite **agregar archivos nuevos**, no modificar existentes.\n` +
+                `Estado del archivo: \`${file.status}\``
+              );
+            }
+
+            // —————————————————————————————
+            // 6. Obtener contenido del archivo desde el fork
+            // —————————————————————————————
+            const prHead = context.payload.pull_request.head;
+            let content;
+            try {
+              const { data } = await github.rest.repos.getContent({
+                owner: prHead.repo.owner.login,
+                repo: prHead.repo.name,
+                path: filename,
+                ref: prHead.sha,
+              });
+              content = Buffer.from(data.content, 'base64').toString('utf-8');
+            } catch (e) {
+              return await reject(`No se pudo leer el contenido del archivo: ${e.message}`);
+            }
+
+            // —————————————————————————————
+            // 7. Validar estructura del template
+            // —————————————————————————————
+            const requiredElements = [
+              { pattern: /<!DOCTYPE html>/i,                         label: '`<!DOCTYPE html>`' },
+              { pattern: /<html\s+lang="es">/i,                      label: '`<html lang="es">`' },
+              { pattern: /<link\s+rel="stylesheet"\s+href="\.\.\/css\/style\.css">/i, label: 'Link al CSS (`../css/style.css`)' },
+              { pattern: /<main\s+class="container">/i,              label: '`<main class="container">`' },
+              { pattern: /<div\s+class="card student-card">/i,       label: '`<div class="card student-card">`' },
+              { pattern: /class="student-avatar"/i,                  label: 'Imagen con clase `student-avatar`' },
+              { pattern: /<div\s+class="info">/i,                    label: '`<div class="info">`' },
+              { pattern: /<h2>.*<\/h2>/i,                            label: 'Etiqueta `<h2>` con nombre' },
+              { pattern: /<p\s+class="subtitle">/i,                  label: '`<p class="subtitle">`' },
+              { pattern: /class="btn"/i,                             label: 'Enlace con clase `btn`' },
+              { pattern: /class="back-link"/i,                       label: 'Enlace de volver con clase `back-link`' },
+            ];
+
+            const missing = requiredElements.filter(el => !el.pattern.test(content));
+            if (missing.length > 0) {
+              return await reject(
+                `El archivo no respeta la estructura del template. Faltan los siguientes elementos:\n` +
+                missing.map(el => `- ${el.label}`).join('\n') +
+                `\n\nAsegurate de copiar el \`template.html\` y solo modificar el contenido personal (nombre, foto, bio, GitHub).`
+              );
+            }
+
+            // —————————————————————————————
+            // 8. Verificar que personalizaron algo (no dejaron "TU NOMBRE AQUÍ")
+            // —————————————————————————————
+            if (content.includes('TU NOMBRE AQUÍ')) {
+              return await reject(
+                `Todavía tenés el texto por defecto **"TU NOMBRE AQUÍ"** en el archivo.\n` +
+                `Reemplazalo con tu nombre real.`
+              );
+            }
+
+            // —————————————————————————————
+            // ✅ Todo OK → Aprobar el PR
+            // —————————————————————————————
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              event: 'APPROVE',
+              body: `✅ **PR aprobado automáticamente** 🎉\n\n` +
+                    `El archivo \`${basename}\` cumple con todos los requisitos del template.\n\n` +
+                    `¡Bienvenido/a al Muro de la Fama, **@${prAuthor}**! 🏆`,
+            });
+
+            core.info(`PR #${prNumber} aprobado automáticamente.`);
